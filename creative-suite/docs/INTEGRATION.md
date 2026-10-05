@@ -96,6 +96,8 @@ Do not put owner credentials in frontend bundles or make `applyReviewed` an unga
 
 Configuration is host-side: `SATSU_BASE_URL`, `SATSU_MODEL`, optional `SATSU_API_KEY`. The server calls an OpenAI-compatible `/chat/completions` endpoint with a 45-second deadline and bounded output. Requests contain the user's request plus resolved score/session summary. Track context is capped at 64 entries. Related score summaries are labelled as unconfirmed DAW relationships.
 
+Advice artifacts retain their resolved source context. The dock displays a response only while its app, resource, revision and selection remain current, including when a request completes after the user switches apps.
+
 This adapter does not discover a private SatsuOS API, emulate its policy engine, or fabricate a live model connection. Its unconfigured state returns labelled local workflow templates. Replace `server/satsu.mjs` with a specific SatsuOS gateway adapter once its real endpoint/auth/context contract is supplied.
 
 ## Failure and recovery

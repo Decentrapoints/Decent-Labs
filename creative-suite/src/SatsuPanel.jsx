@@ -23,6 +23,22 @@ export default function SatsuPanel({
     [busy, setBusy] = useState(false),
     [advice, setAdvice] = useState(null),
     [actions, setActions] = useState([]);
+  const contextKey = JSON.stringify(
+    app === "tabs"
+      ? {
+          app,
+          resource: context?.id,
+          revision: context?.revision,
+          selection: context?.selection ?? null,
+        }
+      : {
+          app,
+          resource: connections?.reaper.project,
+          revision: connections?.reaper.revision,
+          relatedScore: context?.id,
+          relatedRevision: context?.revision,
+        },
+  );
   useEffect(() => {
     let active = true;
     const update = () =>
@@ -54,7 +70,7 @@ export default function SatsuPanel({
           prompt: p,
         },
       });
-      setAdvice(result.payload);
+      setAdvice({ ...result.payload, contextKey });
       setPrompt("");
     } catch (e) {
       notify(e.message, true);
@@ -133,7 +149,7 @@ export default function SatsuPanel({
             </button>
           ))}
         </div>
-        {advice && (
+        {advice?.contextKey === contextKey && (
           <section className="advice">
             <span className="eyebrow">
               {advice.mode === "model"

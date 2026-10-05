@@ -403,7 +403,10 @@ export async function createApp({
       }
     } else fail("Select an app");
     const result = await askSatsu(b.prompt, context);
-    return store.artifact(req.user, "satsu-advice", b.app, result);
+    return store.artifact(req.user, "satsu-advice", b.app, {
+      ...result,
+      context,
+    });
   });
   app.post("/api/actions/prepare", async (req) => {
     owner(req);

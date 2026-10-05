@@ -379,6 +379,8 @@ test("practice, score handoffs and local Satsu templates stay scoped to their us
     prompt: "Plan my practice",
   });
   assert.equal(advice.json().payload.mode, "template");
+  assert.equal(advice.json().payload.context.resource, "demo-1");
+  assert.equal(advice.json().payload.context.revision, 1);
   assert.equal(
     (await request("/api/capabilities")).json().protocol,
     "dls-action/1",

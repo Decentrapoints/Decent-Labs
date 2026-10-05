@@ -151,6 +151,11 @@ try {
     .locator(".handoff-panel")
     .getByRole("heading", { name: "Fresh idea" })
     .waitFor();
+  assert.equal(
+    await page.locator(".advice").count(),
+    0,
+    "Tabs advice must not appear as current Studio advice.",
+  );
   const midiDownload = await Promise.all([
     page.waitForEvent("download"),
     page.getByRole("link", { name: "Download MIDI" }).first().click(),
