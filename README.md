@@ -7,6 +7,10 @@
 
 ## 🧭 Overview
 
+### DLS Creative Suite
+
+The repository now includes [DLS Tabs and DLS Studio / SatsuAudio](creative-suite/README.md): a self-hosted songbook, a REAPER companion and bridge, a reversible native REAPER palette, and a shared Satsu action contract. The guide covers local setup, access from another machine, Docker, backups and integration boundaries. Runtime data and credentials stay outside Git.
+
 **DLaBS** is my personal homelab and research estate. It combines traditional infrastructure, self-hosted services, AI orchestration, market-intelligence tooling, private documentation, and observability into one continuously evolving platform.
 
 The project is intentionally practical:
