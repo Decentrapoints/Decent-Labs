@@ -47,6 +47,43 @@ test("authenticated owners and guests can download the exact self-contained nati
       new URL("../reaper/theme/dist/DLS Satsu.ReaperThemeZip", import.meta.url),
     ),
   );
+  const light = await app.inject({
+    method: "GET",
+    url: "/api/reaper/theme?variant=light",
+    headers: { cookie },
+  });
+  assert.equal(light.statusCode, 200);
+  assert.deepEqual(
+    light.rawPayload,
+    readFileSync(
+      new URL(
+        "../reaper/theme/dist/DLS Satsu Light.ReaperThemeZip",
+        import.meta.url,
+      ),
+    ),
+  );
+  assert.match(light.headers["content-disposition"], /DLS Satsu Light/);
+  const invalid = await app.inject({
+    method: "GET",
+    url: "/api/reaper/theme?variant=../../private",
+    headers: { cookie },
+  });
+  assert.equal(invalid.statusCode, 400);
+  const playback = await app.inject({
+    method: "GET",
+    url: "/api/reaper/playback",
+    headers: { cookie },
+  });
+  assert.equal(playback.statusCode, 200);
+  assert.deepEqual(
+    playback.rawPayload,
+    readFileSync(new URL("../reaper/DLS_Playback.lua", import.meta.url)),
+  );
+  assert.equal(
+    (await app.inject({ method: "GET", url: "/api/reaper/playback" }))
+      .statusCode,
+    401,
+  );
 });
 test("shared DLS client discovers capabilities and carries score actions through to receipts", async (t) => {
   const d = mkdtempSync(join(tmpdir(), "dls-sdk-")),

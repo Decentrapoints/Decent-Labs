@@ -478,6 +478,15 @@ export default function ScoreWorkspace({
               />
               <span>BPM</span>
             </div>
+            <input
+              aria-label="Score tempo slider"
+              type="range"
+              min={20}
+              max={300}
+              step={1}
+              value={tempo}
+              onChange={(e) => setTempo(Number(e.target.value))}
+            />
             <Button
               className="wide"
               disabled={user.role !== "owner"}

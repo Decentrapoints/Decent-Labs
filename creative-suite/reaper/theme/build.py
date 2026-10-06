@@ -8,6 +8,7 @@ PNG/ZIP compressed bytes may vary between platform compression libraries.
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager
 import hashlib
 import io
 import json
@@ -27,6 +28,26 @@ C = {
     "accent": (186, 167, 237), "selected": (43, 37, 57), "green": (143, 210, 171),
     "red": (239, 139, 157), "amber": (227, 190, 126), "paper": (242, 235, 220),
 }
+DARK = C.copy()
+LIGHT = {
+    "base": (210, 212, 219), "panel": (226, 228, 233), "raised": (217, 219, 226),
+    "line": (174, 177, 190), "muted": (78, 76, 96), "text": (35, 34, 47),
+    "accent": (89, 61, 149), "selected": (205, 197, 224), "green": (33, 106, 72),
+    "red": (165, 46, 70), "amber": (122, 79, 15), "paper": (226, 228, 233),
+}
+
+
+@contextmanager
+def appearance(variant):
+    """Select one build palette, then restore it for callers/tests."""
+    global NAME, FOLDER, C
+    previous = NAME, FOLDER, C
+    if variant not in ("dark", "light"):raise ValueError(variant)
+    NAME = "DLS Satsu" + (" Light" if variant == "light" else "")
+    FOLDER = "DLS_Satsu" + ("_Light" if variant == "light" else "")
+    C = (LIGHT if variant == "light" else DARK).copy()
+    try:yield
+    finally:NAME, FOLDER, C = previous
 PINK = (255, 0, 255, 255)
 
 
@@ -430,7 +451,8 @@ def walter():
     lines=["; DLS Satsu / original WALTER and artwork / MIT", "version 7", "use_pngs 1", "use_overlays 0", "warnings all",
            "tinttcp 298", "peaksedges 0", "tcp_folderindent 14", "tcp_heights 4 32 64 108", "tcp_master_minheight 64",
            "envcp_min_height 32", "mcp_min_height 320", "tcp_showborders 0", "mcp_showborders 0", "transport_showborders 0",
-           "misc_dpi_translate 126 150", "misc_dpi_translate 174 200", "tcp_vol_zeroline FFEDA7BA", "mcp_vol_zeroline FFEDA7BA"]
+           "misc_dpi_translate 126 150", "misc_dpi_translate 174 200", "tcp_vol_zeroline FFEDA7BA", "mcp_vol_zeroline FFEDA7BA",
+           "adjuster_script DLS_Playback.lua"]
     for section in ["tcp","master.tcp","mcp","master.mcp","envcp","trans"]:
         lines += [f"; -- {section} --"]+panel(section)
     variants={"Studio":["tcp","master.tcp","mcp","master.mcp","envcp","trans"],
@@ -469,14 +491,23 @@ def theme():
     group("red","col_vuclip marker midi_notemute midi_notemute_sel col_fadearm col_fadearm2 col_fadearm3 mute_overlay_col")
     group("amber","mcp_fx_bypassed mcp_fxparm_bypassed mcp_sends_muted take_marker toolbararmed_color playrate_edited col_vuind4")
     group("paper","score_bg score_timesel")
-    colors["score_fg"]=C["base"]
+    colors["score_fg"]=C["text"] if C == LIGHT else C["base"]
     # Selected clips and MIDI notes use a light lavender surface. Keep their
     # labels/peaks dark; floating labels outside clips stay light on the canvas.
     for key in ["col_mi_label_sel","col_tr1_ps2","col_tr2_ps2","col_peaksedgesel","col_peaksedgesel2","midi_notefg"]:
-        colors[key]=C["base"]
+        colors[key]=C["panel"] if C == LIGHT else C["base"]
+    # REAPER's high bit enables themed main-window drawing. Without it the
+    # native panel chrome can fall back to the system's bright background.
+    group("base", "docker_bg windowtab_bg tcp_pinned_track_gap tcp_pinned_track_gap_unreachable")
+    group("panel", "docker_unselface track_lane_gutter")
+    group("selected", "docker_selface")
+    group("text", "docker_text docker_text_sel")
     for lane,tone in [("vol","accent"),("pan","green"),("width","muted"),("mute","red"),("sendvol","accent"),("sendpan","green"),("sendmute","red"),("pitch","amber"),("playrate","accent"),("fx1","accent"),("fx2","green"),("fx3","amber"),("fx4","red")]:colors["col_env"+lane]=C[tone]
     lines=["[color theme]"]
-    for key,rgb in sorted(colors.items()):lines.append(f"{key}={rgb[0]+(rgb[1]<<8)+(rgb[2]<<16)}")
+    for key,rgb in sorted(colors.items()):
+        value=rgb[0]+(rgb[1]<<8)+(rgb[2]<<16)
+        if key=="col_main_bg":value-=0x80000000
+        lines.append(f"{key}={value}")
     lines += ["col_nodarkmodemiscwnd=0","col_vudoint=0","itembg_drawmode=196608","timesel_drawmode=135424",
               "col_gridlines1dm=196608","col_gridlines2dm=196608","col_gridlines3dm=196608", "midi_griddm1=196608","midi_griddm2=196608","midi_griddm3=196608",
               "playcursor_drawmode=163840","midi_selbg_drawmode=135169", "[REAPER]",f"ui_img={FOLDER}","ui_img_auto=0"]
@@ -487,7 +518,7 @@ def theme():
 
 def build():
     entries={f"{NAME}.ReaperTheme":theme().encode(),f"{FOLDER}/rtconfig.txt":walter().encode()}
-    manifest={"name":NAME,"version":"1.0.0","license":"MIT","reaper":"7+","assets":{}}
+    manifest={"name":NAME,"version":"1.1.0","license":"MIT","reaper":"7+","assets":{}}
     for scale in [1,1.5,2]:
         prefix=FOLDER+"/"+(f"{round(scale*100)}/" if scale!=1 else "")
         for name,im in sorted(assets(scale).items()):
@@ -504,10 +535,9 @@ def build():
     return output.getvalue(),entries
 
 
-def main():
-    parser=argparse.ArgumentParser();parser.add_argument("--check",action="store_true");args=parser.parse_args()
+def release(check):
     data,entries=build();target=ROOT/"dist"/(NAME+".ReaperThemeZip")
-    if args.check:
+    if check:
         if not target.exists():raise SystemExit("Theme archive is missing. Run python reaper/theme/build.py")
         with zipfile.ZipFile(target) as shipped:
             if set(shipped.namelist())!=set(entries):raise SystemExit("Theme archive file list is stale.")
@@ -529,14 +559,20 @@ def main():
                     for key in ["name","version","license","reaper"]:
                         if manifest[key]!=generated_manifest[key]:raise SystemExit("Theme manifest metadata is stale: "+key)
                 elif actual!=expected:raise SystemExit("Theme source is stale: "+path)
-        if (ROOT/"rtconfig.txt").read_bytes()!=entries[FOLDER+"/rtconfig.txt"]:raise SystemExit("Generated WALTER is stale.")
+        if (ROOT/("rtconfig-light.txt" if C==LIGHT else "rtconfig.txt")).read_bytes()!=entries[FOLDER+"/rtconfig.txt"]:raise SystemExit("Generated WALTER is stale.")
         if (ROOT/(NAME+".ReaperTheme")).read_bytes()!=entries[NAME+".ReaperTheme"]:raise SystemExit("Generated theme colors are stale.")
         print(f"Theme sources, pixels and checksums verified: {len(entries)} files / SHA256 {hashlib.sha256(target.read_bytes()).hexdigest()}")
     else:
         target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data)
-        (ROOT/"rtconfig.txt").write_bytes(entries[FOLDER+"/rtconfig.txt"])
+        (ROOT/("rtconfig-light.txt" if C==LIGHT else "rtconfig.txt")).write_bytes(entries[FOLDER+"/rtconfig.txt"])
         (ROOT/(NAME+".ReaperTheme")).write_bytes(entries[NAME+".ReaperTheme"])
         print(f"Built {target.name}: {len(entries)} files, {len(data):,} bytes")
+
+
+def main():
+    parser=argparse.ArgumentParser();parser.add_argument("--check",action="store_true");args=parser.parse_args()
+    for variant in ("dark", "light"):
+        with appearance(variant):release(args.check)
 
 
 if __name__=="__main__":main()

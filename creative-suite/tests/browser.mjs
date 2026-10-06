@@ -82,6 +82,16 @@ try {
     .getByRole("button", { name: "Pause playback", exact: true })
     .click();
   await page.getByLabel("Score tempo", { exact: true }).fill("88");
+  assert.equal(
+    await page.getByLabel("Score tempo slider", { exact: true }).inputValue(),
+    "88",
+  );
+  await page.getByLabel("Score tempo slider", { exact: true }).fill("89");
+  assert.equal(
+    await page.getByLabel("Score tempo", { exact: true }).inputValue(),
+    "89",
+  );
+  await page.getByLabel("Score tempo", { exact: true }).fill("88");
   await page
     .getByRole("button", { name: "Review tempo change", exact: true })
     .click();
@@ -196,6 +206,17 @@ try {
   ]);
   assert.equal(themeDownload.suggestedFilename(), "DLS Satsu.ReaperThemeZip");
   assert.equal(await themeDownload.failure(), null);
+  for (const [label, filename] of [
+    ["Download light gray theme", "DLS Satsu Light.ReaperThemeZip"],
+    ["Download Playback panel", "DLS_Playback.lua"],
+  ]) {
+    const [download] = await Promise.all([
+      page.waitForEvent("download"),
+      page.getByRole("link", { name: label }).click(),
+    ]);
+    assert.equal(download.suggestedFilename(), filename);
+    assert.equal(await download.failure(), null);
+  }
   await page.getByRole("button", { name: "Toggle theme" }).click();
   await screenshot("connections-light");
   await page.getByRole("button", { name: "Toggle theme" }).click();

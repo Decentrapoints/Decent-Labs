@@ -14,3 +14,4 @@ bridge-runtime/
 __pycache__/
 !reaper/theme/dist/
 !reaper/theme/dist/DLS Satsu.ReaperThemeZip
+!reaper/theme/dist/DLS Satsu Light.ReaperThemeZip

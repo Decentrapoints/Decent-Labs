@@ -54,9 +54,12 @@ OpenColorThemeFile=function(path)if not apply then return false end;current=path
 local loader=assert(load(${JSON.stringify(loadTheme)}));local restore=assert(load(${JSON.stringify(restoreTheme)}))
 loader();assert(files[target]=='new-package' and files[target..'.previous']=='old-package');assert(current==target);assert(ext.ThemeBeforeSatsu=='/themes/previous.ReaperThemeZip')
 loader();assert(ext.ThemeBeforeSatsu=='/themes/previous.ReaperThemeZip');assert(messages==0)
+files[source]='next-package';loader();assert(files[target]=='next-package' and files[target..'.previous-1']=='new-package');assert(messages==0)
 apply=false;restore();assert(ext.ThemeBeforeSatsu=='/themes/previous.ReaperThemeZip');assert(messages==1)
 apply=true;restore();assert(current=='/themes/previous.ReaperThemeZip' and ext.ThemeBeforeSatsu==nil)
 files[source]=nil;loader();assert(current=='/themes/previous.ReaperThemeZip');assert(messages==2)
+files[source]='next-package';ext.ThemeBeforeSatsu=nil;current='/themes/previous.ReaperTheme';loader();assert(ext.ThemeBeforeSatsu=='/themes/previous.ReaperThemeZip')
+ext.ThemeBeforeSatsu=nil;current='/resource/ColorThemes/DLS Satsu.ReaperTheme';loader();assert(ext.ThemeBeforeSatsu==nil)
 `));
 test("Lua JSON roundtrip handles Unicode, escapes, strict parsing and bounded nesting", () =>
   run(`

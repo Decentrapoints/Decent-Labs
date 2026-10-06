@@ -123,5 +123,30 @@ class ThemeTests(unittest.TestCase):
         for key in ["col_mi_label_sel","col_tr1_ps2","col_tr2_ps2","midi_notefg","score_fg"]:
             self.assertEqual(int(colors[key]),dark)
 
+    def test_dark_and_light_native_surfaces_and_contrast(self):
+        import configparser
+        for variant in ["dark", "light"]:
+            with build.appearance(variant):
+                archive=zipfile.ZipFile(build.ROOT/"dist"/(build.NAME+".ReaperThemeZip"))
+                self.assertIsNone(archive.testzip())
+                ini=configparser.ConfigParser();ini.read_string(archive.read(build.NAME+".ReaperTheme").decode())
+                colors=ini["color theme"]
+                base=build.C["base"];native=base[0]+(base[1]<<8)+(base[2]<<16)
+                self.assertEqual(int(colors["col_tracklistbg"]),native)
+                self.assertEqual(int(colors["col_main_bg"])&0xffffffff,native|0x80000000)
+                self.assertEqual(int(colors["docker_bg"]),native)
+                if variant=="light":
+                    self.assertTrue(all(190<v<240 for tone in ["base","panel","raised"] for v in build.C[tone]))
+                def lum(rgb):
+                    return sum((v/255/12.92 if v/255<=.04045 else ((v/255+.055)/1.055)**2.4)*k for v,k in zip(rgb,[.2126,.7152,.0722]))
+                for fg,bg in [("text","panel"),("muted","base"),("accent","selected"),("panel" if variant=="light" else "base","accent")]:
+                    light,dark=sorted([lum(build.C[fg]),lum(build.C[bg])],reverse=True)
+                    self.assertGreater((light+.05)/(dark+.05),4.5,(variant,fg,bg))
+                self.assertIn('adjuster_script DLS_Playback.lua',archive.read(build.FOLDER+'/rtconfig.txt').decode())
+                manifest=json.loads(archive.read(build.FOLDER+'/manifest.json'))
+                for path,item in manifest['assets'].items():
+                    self.assertEqual(hashlib.sha256(archive.read(path)).hexdigest(),item['sha256'])
+                archive.close()
+
 
 if __name__=="__main__":unittest.main()

@@ -2,6 +2,7 @@
 This is an asset/layout proof, not a screenshot of REAPER's native renderer.
 """
 import io
+import sys
 from pathlib import Path
 import zipfile
 from PIL import Image, ImageDraw, ImageFont
@@ -35,7 +36,7 @@ def render(section, variant, w, h, title='Rhythm / left', selected=False):
     for key,rect in rects.items():
         x,y,rw,rh=[round(v) for v in rect]
         if key in buttons:
-            data=archive.read('DLS_Satsu/'+buttons[key]+'.png');sprite=Image.open(io.BytesIO(data)).convert('RGBA')
+            data=archive.read(build.FOLDER+'/'+buttons[key]+'.png');sprite=Image.open(io.BytesIO(data)).convert('RGBA')
             sprite=sprite.crop((0,0,sprite.width//3,sprite.height)).resize((rw,rh),Image.Resampling.LANCZOS)
             im.alpha_composite(sprite,(x,y))
         elif key in text:
@@ -51,13 +52,13 @@ def render(section, variant, w, h, title='Rhythm / left', selected=False):
         elif key in ['volume','pan','width','fader','rate.fader']:
             vertical=key=='volume' and 'mcp' in section
             stem='mcp_vol' if vertical else 'tcp_pan' if key=='pan' else 'tcp_vol'
-            bg=Image.open(io.BytesIO(archive.read('DLS_Satsu/'+stem+'bg.png'))).convert('RGBA').resize((rw,rh))
+            bg=Image.open(io.BytesIO(archive.read(build.FOLDER+'/'+stem+'bg.png'))).convert('RGBA').resize((rw,rh))
             im.alpha_composite(bg,(x,y))
             if key=='pan' and 'tcp' in section:
                 draw.ellipse((x+rw//2-7,y+rh//2-7,x+rw//2+7,y+rh//2+7),fill=build.C['raised'],outline=build.C['line'])
                 draw.line((x+rw//2,y+rh//2-6,x+rw//2,y+rh//2+1),fill=build.C['accent'],width=2)
             else:
-                thumb=Image.open(io.BytesIO(archive.read('DLS_Satsu/'+stem+'thumb.png'))).convert('RGBA')
+                thumb=Image.open(io.BytesIO(archive.read(build.FOLDER+'/'+stem+'thumb.png'))).convert('RGBA')
                 im.alpha_composite(thumb,(x+(rw-thumb.width)//2,y+int(rh*.45)) if vertical else (x+int(rw*.58),y+(rh-thumb.height)//2))
         elif key=='meter':
             draw.rectangle((x,y,x+rw-1,y+rh-1),fill=build.C['base'])
@@ -75,8 +76,10 @@ def render(section, variant, w, h, title='Rhythm / left', selected=False):
 
 
 if __name__=='__main__':
-    out=build.ROOT.parent.parent/'test-results'/'reaper-theme-proof.png';out.parent.mkdir(parents=True,exist_ok=True)
-    with zipfile.ZipFile(build.ROOT/'dist'/'DLS Satsu.ReaperThemeZip') as archive:
+    light='--light' in sys.argv
+    if light:build.NAME='DLS Satsu Light';build.FOLDER='DLS_Satsu_Light';build.C=build.LIGHT.copy()
+    out=build.ROOT.parent.parent/'test-results'/('reaper-theme-light-proof.png' if light else 'reaper-theme-proof.png');out.parent.mkdir(parents=True,exist_ok=True)
+    with zipfile.ZipFile(build.ROOT/'dist'/(build.NAME+'.ReaperThemeZip')) as archive:
         sheet=Image.new('RGBA',(1600,1120),(*build.C['base'],255));d=ImageDraw.Draw(sheet)
         d.text((40,28),'DLS / SATSU',font=font(14,True),fill=build.C['accent'])
         d.text((40,58),'A quieter space for your next session.',font=font(30,True),fill=build.C['text'])

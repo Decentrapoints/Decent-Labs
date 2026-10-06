@@ -325,9 +325,35 @@ function Connections({ connections, user, reload, notify }) {
             <Download size={16} />
             <span>Download REAPER theme</span>
           </a>
+          <a
+            className="button"
+            href="/api/reaper/theme?variant=light"
+            download="DLS Satsu Light.ReaperThemeZip"
+          >
+            <Sun size={16} />
+            <span>Download light gray theme</span>
+          </a>
           <p className="fine">
             Drop the downloaded file into REAPER, then choose DLS Satsu under
             Options → Themes. Use Options → Layouts for panel variants.
+          </p>
+          <h3>Playback tools</h3>
+          <p className="fine">
+            A dockable BPM slider, playback speed, and an expandable Pitch &amp;
+            practice section for selected audio takes, loops and click settings.
+          </p>
+          <a
+            className="button"
+            href="/api/reaper/playback"
+            download="DLS_Playback.lua"
+          >
+            <Download size={16} />
+            <span>Download Playback panel</span>
+          </a>
+          <p className="fine">
+            In REAPER’s Actions list, choose New action → Load ReaScript and
+            load DLS_Playback.lua, then Run. Dock it beneath the arrange view;
+            add the action to your toolbar for one-click access.
           </p>
         </section>
         <section className="panel">

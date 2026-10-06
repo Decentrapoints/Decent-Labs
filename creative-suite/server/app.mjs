@@ -509,19 +509,26 @@ export async function createApp({
     return store.action(a.id, req.user);
   });
   const alphaRoot = resolve("node_modules/@coderline/alphatab/dist");
-  app.get("/api/reaper/theme", async (_req, reply) => {
-    const file = new URL(
-      "../reaper/theme/dist/DLS Satsu.ReaperThemeZip",
-      import.meta.url,
-    );
+  app.get("/api/reaper/theme", async (req, reply) => {
+    const variant = req.query.variant || "dark";
+    if (!["dark", "light"].includes(variant))
+      fail("Unknown theme variant.", 400);
+    const name = `DLS Satsu${variant === "light" ? " Light" : ""}.ReaperThemeZip`;
+    const file = new URL(`../reaper/theme/dist/${name}`, import.meta.url);
     if (!existsSync(file))
       fail("The REAPER theme package is missing from this installation.", 503);
     return reply
       .type("application/zip")
-      .header(
-        "Content-Disposition",
-        'attachment; filename="DLS Satsu.ReaperThemeZip"',
-      )
+      .header("Content-Disposition", `attachment; filename="${name}"`)
+      .send(createReadStream(file));
+  });
+  app.get("/api/reaper/playback", async (_req, reply) => {
+    const file = new URL("../reaper/DLS_Playback.lua", import.meta.url);
+    if (!existsSync(file))
+      fail("The Playback panel is missing from this installation.", 503);
+    return reply
+      .type("text/plain; charset=utf-8")
+      .header("Content-Disposition", 'attachment; filename="DLS_Playback.lua"')
       .send(createReadStream(file));
   });
   await app.register(staticFiles, {
