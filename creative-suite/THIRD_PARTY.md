@@ -18,3 +18,5 @@ Original DLS source uses the repository's existing ownership terms. Installed de
 The application serves the original alphaTab library, font, soundfont and their notices locally from `node_modules`. It does not modify those assets. Container distribution includes dependency assets and notices from their original packages. Review upstream licenses when distributing or changing third-party code.
 
 The three included scores (Glass, Night signal, Stillwater) are original demonstration phrases created for this suite; no commercial song transcriptions are bundled.
+
+The optional Windows native-gesture installer downloads [js_ReaScriptAPI](https://github.com/juliansader/ReaExtensions) 1.310, copyright Julian Sader, under its upstream MIT license. The binary is not bundled in this repository. It is pinned to commit `2100b96d99b8621f6145a0f02000036c23b3d938`, path `js_ReaScriptAPI/v1.310/reaper_js_ReaScriptAPI64.dll`, with SHA-256 `7231862247efcd935f14a648364f7808631cb99b0fd55eb5ed6af1fbf7405072`. See the [upstream license](https://github.com/juliansader/ReaExtensions/blob/2100b96d99b8621f6145a0f02000036c23b3d938/License.txt).

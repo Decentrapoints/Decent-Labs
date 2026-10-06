@@ -1,9 +1,9 @@
 name: Creative suite
 on:
   push:
-    paths: ['creative-suite/**', '.github/workflows/creative-suite.yml']
+    paths: ["creative-suite/**", ".github/workflows/creative-suite.yml"]
   pull_request:
-    paths: ['creative-suite/**', '.github/workflows/creative-suite.yml']
+    paths: ["creative-suite/**", ".github/workflows/creative-suite.yml"]
 permissions:
   contents: read
 jobs:
@@ -42,7 +42,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.13'
+          python-version: "3.13"
       - run: python -m pip install Pillow==12.3.0
       - run: python reaper/theme/build.py --check
       - run: python -m unittest discover -s reaper/theme -p test_theme.py
+  reaper-installer:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - shell: pwsh
+        run: ./creative-suite/tests/installer.test.ps1

@@ -2,10 +2,16 @@
 param(
     [string]$ResourcePath = (Join-Path $env:APPDATA 'REAPER'),
     [ValidateSet('Both', 'Dark', 'Light')][string]$Variant = 'Both',
-    [switch]$Uninstall
+    [switch]$Uninstall,
+    [switch]$QuickAccess,
+    [switch]$NativeControls,
+    [string]$SuiteURL = 'http://localhost:4310'
 )
 $ErrorActionPreference = 'Stop'
 $resourceRoot = [IO.Path]::GetFullPath($ResourcePath)
+if (($QuickAccess -or $NativeControls) -and -not $WhatIfPreference -and (Get-Process reaper -ErrorAction SilentlyContinue)) {
+    throw 'Close REAPER before installing quick-access/native controls so its settings are not overwritten on exit.'
+}
 if (-not (Test-Path -LiteralPath (Join-Path $resourceRoot 'reaper.ini') -PathType Leaf)) {
     throw 'Choose REAPER''s resource directory (Options > Show REAPER resource path). No reaper.ini found.'
 }
@@ -58,5 +64,9 @@ if ($PSCmdlet.ShouldProcess($playbackTarget, 'Install DLS Playback controls')) {
     }
     Copy-Item -LiteralPath $playbackSource -Destination $playbackTarget -Force
     if ((Get-FileHash -LiteralPath $playbackTarget).Hash -ne (Get-FileHash -LiteralPath $playbackSource).Hash) { throw 'Playback checksum does not match.' }
-    Write-Host 'Playback installed. Actions > New action > Load ReaScript > Scripts/DLS_Playback.lua > Run; add it to your toolbar.'
+    if (-not $QuickAccess) { Write-Host 'Playback installed. Actions > New action > Load ReaScript > Scripts/DLS_Playback.lua > Run; add it to your toolbar.' }
+}
+
+if ($QuickAccess -or $NativeControls) {
+    & (Join-Path $PSScriptRoot 'setup-workspace.ps1') -ResourcePath $resourceRoot -QuickAccess:$QuickAccess -NativeControls:$NativeControls -SuiteURL $SuiteURL -WhatIf:$WhatIfPreference
 }

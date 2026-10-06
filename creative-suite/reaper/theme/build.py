@@ -299,6 +299,8 @@ def assets(scale):
     for variant in ["item","loop"]:
         for state in ["","_on"]:images["transport_record_"+variant+state]=button("record",scale,bool(state),"red",w=32,h=32)
     for stem,ic in [("new","new"),("open","open"),("save","save"),("undo","undo"),("redo","redo")]:images["toolbar_"+stem]=button(ic,scale,w=30,h=30)
+    for stem,ic in [("playback","env"),("pitch","up"),("tuner","note"),("loop","repeat"),("tabs","TAB"),("satsu","learn"),("countin","CLICK")]:
+        images["toolbar_dls_"+stem]=button(ic,scale,w=30,h=30)
     for stem,ic in [("grid","grid"),("snap","snap"),("xfade","crossfade"),("lock","lock"),
                     ("ripple","ripple"),("env","env"),("autoxfade","crossfade")]:
         for state in ["off","on"]:images[f"toolbar_{stem}_{state}"]=button(ic,scale,state=="on",w=30,h=30)
@@ -518,7 +520,7 @@ def theme():
 
 def build():
     entries={f"{NAME}.ReaperTheme":theme().encode(),f"{FOLDER}/rtconfig.txt":walter().encode()}
-    manifest={"name":NAME,"version":"1.1.0","license":"MIT","reaper":"7+","assets":{}}
+    manifest={"name":NAME,"version":"1.2.0","license":"MIT","reaper":"7+","assets":{}}
     for scale in [1,1.5,2]:
         prefix=FOLDER+"/"+(f"{round(scale*100)}/" if scale!=1 else "")
         for name,im in sorted(assets(scale).items()):

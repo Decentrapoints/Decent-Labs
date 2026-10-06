@@ -97,6 +97,8 @@ Open **Connections → Download REAPER theme** and drag the downloaded archive i
 
 For a reversible application action, load `reaper/DLS_Load_Theme.lua` through **Actions → Show action list → New action → Load ReaScript** and run it. It installs the packaged theme and remembers the previous theme. `DLS_Restore_Theme.lua` restores that selection. These two actions do not need SWS, ReaImGui, or the service.
 
+For the complete Windows workspace, close REAPER and run `./reaper/theme/install.ps1 -QuickAccess -NativeControls`. This installs the bottom Playback panel, draggable BPM/speed numbers, resettable sliders, expandable pitch tools, guitar tuner and practice shortcuts, plus links to Tabs and Satsu. Add `-SuiteURL 'https://music.example.com'` for your server. Native transport BPM dragging uses the optional checksum-verified js_ReaScriptAPI extension; the standalone panel does not need it. Open Playback once per REAPER session to activate native gestures. Collapsing the dock returns its space to the arrangement; reopen it from the Playback toolbar button. Existing toolbars/settings receive backups. See the [theme guide](reaper/theme/README.md) for installation and verification details.
+
 The theme does not embed the web companion or Tabs inside REAPER; those remain separate connected applications. Native dialogs, third-party plugin windows, and OS window chrome retain their own layouts. The REAPER bridge supplies session integration separately from the theme.
 
 ### Legacy palette action
