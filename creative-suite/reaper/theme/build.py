@@ -470,6 +470,10 @@ def theme():
     group("amber","mcp_fx_bypassed mcp_fxparm_bypassed mcp_sends_muted take_marker toolbararmed_color playrate_edited col_vuind4")
     group("paper","score_bg score_timesel")
     colors["score_fg"]=C["base"]
+    # Selected clips and MIDI notes use a light lavender surface. Keep their
+    # labels/peaks dark; floating labels outside clips stay light on the canvas.
+    for key in ["col_mi_label_sel","col_tr1_ps2","col_tr2_ps2","col_peaksedgesel","col_peaksedgesel2","midi_notefg"]:
+        colors[key]=C["base"]
     for lane,tone in [("vol","accent"),("pan","green"),("width","muted"),("mute","red"),("sendvol","accent"),("sendpan","green"),("sendmute","red"),("pitch","amber"),("playrate","accent"),("fx1","accent"),("fx2","green"),("fx3","amber"),("fx4","red")]:colors["col_env"+lane]=C[tone]
     lines=["[color theme]"]
     for key,rgb in sorted(colors.items()):lines.append(f"{key}={rgb[0]+(rgb[1]<<8)+(rgb[2]<<16)}")

@@ -113,11 +113,15 @@ class ThemeTests(unittest.TestCase):
         for variant in ["Studio","Compact","Recording","Inspector"]:
             for dpi in [""," 150%"," 200%"]:self.assertIn(f'Layout "Satsu {variant}{dpi}"',script)
         for idx in range(1,16):self.assertIn(f"user_font{idx}=",build.theme())
-        for fg,bg in [("text","panel"),("muted","base"),("accent","selected")]:
+        for fg,bg in [("text","panel"),("muted","base"),("accent","selected"),("base","accent"),("base","paper")]:
             def lum(rgb):
                 vals=[v/255 for v in rgb];return sum((v/12.92 if v<=.04045 else ((v+.055)/1.055)**2.4)*k for v,k in zip(vals,[.2126,.7152,.0722]))
             light,dark=sorted([lum(build.C[fg]),lum(build.C[bg])],reverse=True)
             self.assertGreater((light+.05)/(dark+.05),4.5)
+        colors=dict(re.findall(r"^([a-z0-9_]+)=(\d+)$",build.theme(),re.M))
+        dark=build.C["base"][0]+(build.C["base"][1]<<8)+(build.C["base"][2]<<16)
+        for key in ["col_mi_label_sel","col_tr1_ps2","col_tr2_ps2","midi_notefg","score_fg"]:
+            self.assertEqual(int(colors[key]),dark)
 
 
 if __name__=="__main__":unittest.main()
