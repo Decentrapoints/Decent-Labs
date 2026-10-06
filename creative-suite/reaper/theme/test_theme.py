@@ -83,12 +83,14 @@ class ThemeTests(unittest.TestCase):
     def test_controls_fit_without_overlapping_at_supported_sizes(self):
         for scale in [1,1.5,2]:
             for variant in ["Studio","Compact","Recording"]:
-                for w in [280,380,560]:
+                for w in [280,380,560,1024]:
                     for h in [32,64,108,168,260]:
                         self.check_geometry("tcp",scale,variant,w*scale,h*scale)
-            for variant,width in [("Studio",124),("Compact",92),("Inspector",232)]:
-                for height in [320,400,480,720]:self.check_geometry("mcp",scale,variant,width*scale,height*scale)
-            for height in [320,480,720]:self.check_geometry("master.mcp",scale,"Studio",156*scale,height*scale)
+            for variant,width in [("Studio",124),("Compact",100),("Inspector",232)]:
+                for extra in [0,40,160]:
+                    for height in [320,360,399,400,401,480,720,1080]:self.check_geometry("mcp",scale,variant,(width+extra)*scale,height*scale)
+            for width in [184,224,344]:
+                for height in [320,360,399,400,401,480,720,1080]:self.check_geometry("master.mcp",scale,"Studio",width*scale,height*scale)
             for w in [580,718,760,922,1100,1400]:self.check_geometry("trans",scale,"Studio",w*scale,64*scale)
             for w in [280,380,560]:
                 for h in [32,64,100]:self.check_geometry("envcp",scale,"Studio",w*scale,h*scale)
@@ -107,6 +109,28 @@ class ThemeTests(unittest.TestCase):
                 x,y,rw,rh=first;xx,yy,ww,hh=second
                 overlap=min(x+rw,xx+ww)-max(x,xx)>.51 and min(y+rh,yy+hh)-max(y,yy)>.51
                 self.assertFalse(overlap,f"{section}/{variant}/{scale}/{w}x{h}: {a} overlaps {b}")
+
+    def test_master_meter_has_room_for_peak_and_rms_and_short_mixers_prioritize_controls(self):
+        for scale in [1,1.5,2]:
+            for variant,width in [('Studio',124),('Compact',100),('Inspector',232)]:
+                small=positions('mcp',scale,variant,width*scale,320*scale)
+                self.assertNotIn('pan.label',small)
+                self.assertIn('volume.label',small);self.assertIn('pan',small)
+                self.assertGreaterEqual(small['volume'][3],70*scale)
+                self.assertGreaterEqual(small['meter'][2],40*scale)
+                tall=positions('mcp',scale,variant,width*scale,480*scale)
+                self.assertIn('pan.label',tall)
+                self.assertGreaterEqual(tall['meter'][3],180*scale)
+            master=positions('master.mcp',scale,'Studio',184*scale,480*scale)
+            self.assertGreaterEqual(master['meter'][2],108*scale)
+            self.assertGreaterEqual(master['volume'][2],36*scale)
+            self.assertGreaterEqual(master['meter'][0]-(master['volume'][0]+master['volume'][2]),14*scale)
+            wider=positions('master.mcp',scale,'Studio',224*scale,480*scale)
+            self.assertEqual(wider['meter'][2]-master['meter'][2],40*scale)
+            self.assertEqual(wider['pan'][2]-master['pan'][2],40*scale)
+            config='\n'.join(build.panel('master.mcp',scale))
+            self.assertIn('master.mcp.meter.vu.rmsdiv',config)
+            self.assertIn('master.mcp.meter.rmsreadout.color h>=',config)
 
     def test_layouts_fonts_and_accessible_state_colors(self):
         script=self.archive.read("DLS_Satsu/rtconfig.txt").decode()

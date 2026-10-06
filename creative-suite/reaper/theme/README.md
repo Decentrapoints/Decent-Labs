@@ -4,6 +4,10 @@ Graphite surfaces, quiet separators, lavender selection, mint playback, and rose
 
 **1.2:** bottom Playback tools with draggable numbers, resettable sliders, a visible pitch section, and original guitar-practice toolbar icons. Native window backgrounds enable theme drawing, including the empty track pane and dock chrome. **DLS Satsu Light** uses layered cool grays, dark labels and a deeper violet accent; its working surfaces are never pure white.
 
+**1.3:** a 184px master strip with a 108px native peak/RMS meter area, a larger outlined fader and a quiet rail. Mixer layouts respond to height and extra width: below 400px, inserts give way to longer faders, the duplicate pan caption and crowded in-meter text are hidden, and gain/pan/FX/routing controls remain available. At 400px and above, the extra readouts and insert section return. The compact strip is 100px wide to preserve separation between its fader and stereo meters. These dimensions scale with the 150% and 200% layouts.
+
+The responsive layouts pass geometry checks from 320px to 1080px height, including both sides of the 400px transition and wider strips at every scale. Native screenshot verification of this release remains pending because the Windows control helper reports “foreground window did not report a process id.”
+
 ## Use the theme
 
 1. Download **DLS Satsu.ReaperThemeZip** from the `dist` folder, or use **Connections → Download REAPER theme** in the suite.
@@ -62,9 +66,9 @@ Space plays/stops; Tab cycles BPM/speed/pitch entry; Enter applies; Escape cance
 | Track                 | Satsu Compact   | 64px baseline; essential editing controls; dragging the lower edge exposes additional controls             |
 | Track                 | Satsu Recording | 168px baseline; input, record mode, stereo width and native FX parameter area                              |
 | Mixer                 | Satsu Studio    | 124px strips; native inserts/sends, meter, fader, gain readout, pan, arm/mute/solo, routing and monitoring |
-| Mixer                 | Satsu Compact   | 92px strips; separate hit targets and a narrower meter/fader pair                                          |
+| Mixer                 | Satsu Compact   | 100px strips; separate hit targets and a narrower meter/fader pair                                         |
 | Mixer                 | Satsu Inspector | 232px strip with dedicated insert/send sidebar, input, record mode and phase                               |
-| Master                | Satsu Studio    | 156px mixer with mono, stereo metering and output routing                                                  |
+| Master                | Satsu Studio    | 184px mixer with mono, room for peak/RMS stereo metering and output routing                                |
 | Envelopes / transport | Satsu Studio    | Native automation controls, transport, tempo/tap, signature, playback rate and selection readout           |
 
 At 150% and 200% display scale, REAPER automatically maps the base layouts to matching larger artwork/layouts. You can also choose those layouts manually. Compact tracks expand their controls with height. Under 300px TCP width, record-mode control is available from the recording-arm context menu; widen the panel for a direct button. Pan readout appears at 380px width. Input/width controls appear from 130px track height; the native FX parameter area appears from 166px.

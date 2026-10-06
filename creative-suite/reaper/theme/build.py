@@ -196,19 +196,22 @@ def background(w,h,scale=1,selected=False,kind="panel"):
     return framed
 
 
-def fader(scale, vertical=False, thumb=False):
-    w,h = ((28,14) if thumb else (28,180)) if vertical else ((14,24) if thumb else (180,24))
+def fader(scale, vertical=False, thumb=False, master=False):
+    w,h = (((34,18) if master else (28,14)) if thumb else ((36,180) if master else (28,180))) if vertical else ((14,24) if thumb else (180,24))
     c=Canvas(w,h,scale)
     if thumb:
-        c.rect((1,1,w-1,h-1),C["accent"],3,mix(C["accent"],C["text"],.2),.7)
-        if vertical: c.line([(5,h/2),(w-5,h/2)],C["selected"],1.4)
+        c.rect((1,1,w-1,h-1),C["raised"] if master else C["accent"],3,mix(C["accent"],C["text"],.2),.7)
+        if vertical: c.line([(5,h/2),(w-5,h/2)],C["accent"] if master else C["selected"],1.4)
         else: c.line([(w/2,5),(w/2,h-5)],C["selected"],1.4)
     else:
         # Opaque hit area covers the entire lane; groove stays subdued.
         c.rect((0,0,w,h),C["panel"],0)
         if vertical:
             c.rect((w/2-2,2,w/2+2,h-2),C["base"],2)
-            for y in range(6,h-4,14): c.line([(4,y),(8,y)],C["line"],1); c.line([(w-8,y),(w-4,y)],C["line"],1)
+            # A quiet rail scales cleanly; baked repeating ticks became clutter
+            # when REAPER stretched the lane to a different mixer height.
+            if not master:
+                for y in range(8,h-4,28): c.line([(4,y),(7,y)],C["line"],1)
         else: c.rect((3,h/2-2,w-3,h/2+2),C["base"],2)
     return c.image()
 
@@ -320,6 +323,8 @@ def assets(scale):
     images["envcp_faderbg"]=fader(scale);images["envcp_fader"]=fader(scale,False,True)
     images["transport_playspeedbg"]=fader(scale);images["transport_playspeedthumb"]=fader(scale,False,True)
     images["tcp_vu"]=meter(scale);images["mcp_vu"]=meter(scale,True);images["mcp_master_vu"]=meter(scale,True,True)
+    images["mcp_master_volbg"]=fader(scale,True,False,True)
+    images["mcp_master_volthumb"]=fader(scale,True,True,True)
     images["scrollbar"]=scrollbar(scale)
     for context in ["mcp","mcp_master"]:
         for section in ["fxlist","sendlist","fxparm"]:
@@ -386,40 +391,56 @@ def panel(section, scale=1, variant="Studio"):
             header("mono",[266,9,26,26,1,0,1,0]);box("pan.label",[204,70,152,24,0,0,1,0],row);label("pan.label",1)
     elif section in ["mcp","master.mcp"]:
         master=section.startswith("master")
-        width=156 if master else 232 if variant=="Inspector" else 92 if variant=="Compact" else 124
+        width=184 if master else 232 if variant=="Inspector" else 100 if variant=="Compact" else 124
         controls=124 if variant=="Inspector" else width
         upper=0 if variant=="Inspector" else .3
         height=480
         setting("size",vector([width,height,width,320],scale))
-        box("label",[10,10,width-20,26]);label("label",.5,2)
+        horizontal=0 if variant=="Inspector" else 1
+        box("label",[10,10,width-20,26,0,0,1,0]);label("label",.5,2)
         # Extended mixer lists are native REAPER FX/sends, not painted labels.
         setting("extmixer.mode","[1]")
-        box("extmixer.position",[10,44,width-20,68,0,0,0,.3],f"h>={round(400*scale)}")
+        box("extmixer.position",[10,44,width-20,68,0,0,1,.3],f"h>={round(400*scale)}")
         for key in ["fxlist","sendlist","fxparm"]:
             setting(key+".font",f"[{1 if scale==1 else 6 if scale==1.5 else 11} {round(22*scale)}]")
             setting(key+".margin",vector([4,0,4,0],scale)[:-1]+" 0 0 0 0]")
-        # The fader and meters stretch above the anchored bottom controls.
-        box("volume",[14,166,28,190,0,upper,0,1]);setting("volume.fadermode","[-1]")
-        box("meter",[controls-44,166,28,190,0,upper,0,1]);setting("meter.vu.div","[2 1]")
-        box("volume.label",[8,362,controls-16,20,0,1,0,1]);label("volume.label",.5)
-        box("pan",[10,388,controls-20,18,0,1,0,1]);setting("pan.fadermode","[-1]")
-        box("pan.label",[10,410,controls-20,18,0,1,0,1]);label("pan.label",.5)
+        # Reserve text space inside native meters, including the master's four
+        # peak/RMS lanes. Mode 0 lets REAPER enlarge divisions for scale text.
+        meter_width=108 if master else 40 if variant=="Compact" else 48
+        meter_x=controls-12-meter_width
+        def mixer_box(key,tall,short):
+            setting(key,f"h>={round(400*scale)} {vector(tall,scale,True)} {vector(short,scale,True)}")
+        fader_width=36 if master else 28
+        mixer_box("volume",[14,166,fader_width,190,0,upper,0,1],[14,110,fader_width,272,0,0,0,1])
+        setting("volume.fadermode","[-1]")
+        mixer_box("meter",[meter_x,166,meter_width,190,0,upper,horizontal,1],[meter_x,110,meter_width,272,0,0,horizontal,1])
+        setting("meter.vu.div",vector([4,0,4,8],scale))
+        if master:setting("meter.vu.rmsdiv",vector([4,0],scale))
+        mixer_box("volume.label",[8,362,controls-16,20,0,1,horizontal,1],[8,386,controls-16,20,0,1,horizontal,1]);label("volume.label",.5)
+        mixer_box("pan",[10,388,controls-20,18,0,1,horizontal,1],[10,412,controls-20,18,0,1,horizontal,1]);setting("pan.fadermode","[-1]")
+        box("pan.label",[10,410,controls-20,18,0,1,horizontal,1],f"h>={round(400*scale)}");label("pan.label",.5)
         bw=22 if variant=="Compact" else 26
-        box("mute",[10,436,bw,26,0,1,0,1]);box("solo",[controls-10-bw,436,bw,26,0,1,0,1])
-        if master:box("mono",[(controls-bw)/2,436,bw,26,0,1,0,1])
-        else:box("recarm",[(controls-bw)/2,436,bw,26,0,1,0,1])
+        box("mute",[10,436,bw,26,0,1,0,1]);box("solo",[controls-10-bw,436,bw,26,horizontal,1,horizontal,1])
+        if master:box("mono",[(controls-bw)/2,436,bw,26,.5*horizontal,1,.5*horizontal,1])
+        else:box("recarm",[(controls-bw)/2,436,bw,26,.5*horizontal,1,.5*horizontal,1])
         # Top-row routes remain accessible when extended mixer is hidden.
-        box("fx",[10,118,bw,26,0,upper,0,upper]);box("io",[controls-10-bw,118,bw,26,0,upper,0,upper])
-        box("env",[(controls-42)/2,148,42,18,0,upper,0,upper])
+        mixer_box("fx",[10,118,bw,26,0,upper,0,upper],[10,46,bw,26])
+        mixer_box("io",[controls-10-bw,118,bw,26,horizontal,upper,horizontal,upper],[controls-10-bw,46,bw,26,horizontal,0,horizontal,0])
+        mixer_box("env",[(controls-42)/2,148,42,18,.5*horizontal,upper,.5*horizontal,upper],[(controls-42)/2,78,42,18,.5*horizontal,0,.5*horizontal,0])
         if not master:
-            box("recmon",[(controls-bw)/2,118,bw,26,0,upper,0,upper])
+            mixer_box("recmon",[(controls-bw)/2,118,bw,26,.5*horizontal,upper,.5*horizontal,upper],[(controls-bw)/2,46,bw,26,.5*horizontal,0,.5*horizontal,0])
             # Input / phase stay in expanded native context menus; Inspector
             # exposes direct controls alongside the full insert/send sidebar.
             if variant=="Inspector":
                 box("recinput",[10,44,controls-20,24]);label("recinput")
                 box("recmode",[10,76,34,24]);box("phase",[controls-36,76,26,24])
+                # Inspector's input controls own the top-left area at all heights.
+                box("fx",[10,118,bw,26]);box("io",[controls-10-bw,118,bw,26])
+                box("recmon",[(controls-bw)/2,118,bw,26]);box("env",[(controls-42)/2,148,42,18],f"h>={round(400*scale)}")
+                mixer_box("volume",[14,174,28,182,0,0,0,1],[14,152,28,230,0,0,0,1])
+                mixer_box("meter",[meter_x,174,meter_width,182,0,0,0,1],[meter_x,152,meter_width,230,0,0,0,1])
                 box("extmixer.position",[134,44,width-144,418,0,0,0,1])
-        box("trackidx",[controls-30,466,20,12,0,1,0,1]);label("trackidx",1)
+        if not master:box("trackidx",[controls-30,466,20,12,horizontal,1,horizontal,1]);label("trackidx",1)
     elif section=="envcp":
         setting("size",vector([380,64,280,32],scale))
         box("label",[40,8,228,22,0,0,1,0]);label("label")
@@ -446,6 +467,13 @@ def panel(section, scale=1, variant="Studio"):
         setting("meter.readout.color",vector([*C["muted"],255,*C["red"],255],1))
         setting("meter.inputlabel.color",vector([*C["text"],255],1))
         for pos in ["lit.top","lit.bottom","unlit.top","unlit.bottom"]:color("meter.scale.color."+pos,"muted")
+        if "mcp" in section:
+            # Short strips retain live levels and gain readouts; omit crowded
+            # in-meter text while native tooltips still expose exact readings.
+            for key in ["meter.readout.color","meter.rmsreadout.color"]:
+                setting(key,f"h>={round(400*scale)} {vector([*C['muted'],255,*C['red'],255],1)} [0 0 0 0 0 0 0 0]")
+            for pos in ["lit.top","lit.bottom","unlit.top","unlit.bottom"]:
+                setting("meter.scale.color."+pos,f"h>={round(400*scale)} {vector([*C['muted'],255,0,0,0,0],1)} [0 0 0 0 0 0 0 0]")
     return lines
 
 
@@ -520,7 +548,7 @@ def theme():
 
 def build():
     entries={f"{NAME}.ReaperTheme":theme().encode(),f"{FOLDER}/rtconfig.txt":walter().encode()}
-    manifest={"name":NAME,"version":"1.2.0","license":"MIT","reaper":"7+","assets":{}}
+    manifest={"name":NAME,"version":"1.3.0","license":"MIT","reaper":"7+","assets":{}}
     for scale in [1,1.5,2]:
         prefix=FOLDER+"/"+(f"{round(scale*100)}/" if scale!=1 else "")
         for name,im in sorted(assets(scale).items()):
