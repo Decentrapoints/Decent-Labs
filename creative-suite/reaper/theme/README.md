@@ -52,7 +52,7 @@ python reaper/theme/build.py --check
 python -m unittest discover -s reaper/theme -p test_theme.py
 ```
 
-Run those from `creative-suite`. `build.py` owns all vector drawing instructions, colors, font serialization and WALTER generation. `rtconfig.txt` and `DLS Satsu.ReaperTheme` are generated readable sources. The archive contains every asset and a SHA-256 manifest. ZIP metadata is fixed, and builds use no platform fonts or downloaded artwork. Python/Pillow are needed only to rebuild; users only need REAPER 7+ and the archive.
+Run those from `creative-suite`. `build.py` owns all vector drawing instructions, colors, font serialization and WALTER generation. `rtconfig.txt` and `DLS Satsu.ReaperTheme` are generated readable sources. The archive contains every asset and a SHA-256 manifest. ZIP metadata is fixed, and builds use no platform fonts or downloaded artwork. The release check compares generated sources and decoded RGBA pixels, and verifies the shipped file checksums; compressed PNG/ZIP bytes can differ between platform compression libraries. Python/Pillow are needed only to rebuild; users only need REAPER 7+ and the archive.
 
 Tests inspect every PNG and archive entry; assert hover/pressed atlases, scale sets, font/layout presence and contrast; and resolve actual generated WALTER geometry across widths/heights/scales to catch collisions and inaccessible controls. They do not replace a native-renderer visual inspection.
 

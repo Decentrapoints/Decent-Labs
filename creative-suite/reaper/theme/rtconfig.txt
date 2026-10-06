@@ -993,8 +993,8 @@ set trans.sel.color [238 237 243 255]
 set trans.sel.font [11]
 set trans.sel.margin [8 0 8 0 1]
 EndLayout
-layout_dpi_translate "Satsu Studio" 1.74 "Satsu Studio 200%"
 layout_dpi_translate "Satsu Studio" 1.26 "Satsu Studio 150%"
+layout_dpi_translate "Satsu Studio" 1.74 "Satsu Studio 200%"
 Layout "Satsu Compact"
 clear tcp.*
 set tcp.size [380 64 280 32]
@@ -1310,8 +1310,8 @@ set mcp.meter.scale.color.lit.bottom [171 166 185 255]
 set mcp.meter.scale.color.unlit.top [171 166 185 255]
 set mcp.meter.scale.color.unlit.bottom [171 166 185 255]
 EndLayout
-layout_dpi_translate "Satsu Compact" 1.74 "Satsu Compact 200%"
 layout_dpi_translate "Satsu Compact" 1.26 "Satsu Compact 150%"
+layout_dpi_translate "Satsu Compact" 1.74 "Satsu Compact 200%"
 Layout "Satsu Recording"
 clear tcp.*
 set tcp.size [380 168 280 32]
@@ -1483,8 +1483,8 @@ set tcp.meter.scale.color.lit.bottom [171 166 185 255]
 set tcp.meter.scale.color.unlit.top [171 166 185 255]
 set tcp.meter.scale.color.unlit.bottom [171 166 185 255]
 EndLayout
-layout_dpi_translate "Satsu Recording" 1.74 "Satsu Recording 200%"
 layout_dpi_translate "Satsu Recording" 1.26 "Satsu Recording 150%"
+layout_dpi_translate "Satsu Recording" 1.74 "Satsu Recording 200%"
 Layout "Satsu Inspector"
 clear mcp.*
 set mcp.size [232 480 232 320]
@@ -1656,7 +1656,7 @@ set mcp.meter.scale.color.lit.bottom [171 166 185 255]
 set mcp.meter.scale.color.unlit.top [171 166 185 255]
 set mcp.meter.scale.color.unlit.bottom [171 166 185 255]
 EndLayout
-layout_dpi_translate "Satsu Inspector" 1.74 "Satsu Inspector 200%"
 layout_dpi_translate "Satsu Inspector" 1.26 "Satsu Inspector 150%"
-layout_dpi_translate "" 1.74 "Satsu Studio 200%"
+layout_dpi_translate "Satsu Inspector" 1.74 "Satsu Inspector 200%"
 layout_dpi_translate "" 1.26 "Satsu Studio 150%"
+layout_dpi_translate "" 1.74 "Satsu Studio 200%"

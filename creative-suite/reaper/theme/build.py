@@ -1,8 +1,9 @@
 """Build the original DLS Satsu REAPER theme. Python 3.11+ / Pillow 12.3.0.
 
 Every image is drawn here; no Cockos or third-party theme artwork is copied.
-The shipped archive is ready to use without Python. Fixed ZIP metadata makes
-builds reproducible. --check rebuilds in memory and verifies the release bytes.
+The shipped archive is ready to use without Python. ZIP metadata is fixed.
+--check verifies generated sources, decoded artwork, and release checksums;
+PNG/ZIP compressed bytes may vary between platform compression libraries.
 """
 from __future__ import annotations
 
@@ -440,9 +441,9 @@ def walter():
             lines += [f'Layout "{name}"'+(f' "{round(scale*100)}"' if scale!=1 else "")]
             for section in sections:lines += panel(section,scale,variant)
             lines += ["EndLayout"]
-        lines += [f'layout_dpi_translate "Satsu {variant}" 1.74 "Satsu {variant} 200%"',
-                  f'layout_dpi_translate "Satsu {variant}" 1.26 "Satsu {variant} 150%"']
-    lines += ['layout_dpi_translate "" 1.74 "Satsu Studio 200%"', 'layout_dpi_translate "" 1.26 "Satsu Studio 150%"']
+        lines += [f'layout_dpi_translate "Satsu {variant}" 1.26 "Satsu {variant} 150%"',
+                  f'layout_dpi_translate "Satsu {variant}" 1.74 "Satsu {variant} 200%"']
+    lines += ['layout_dpi_translate "" 1.26 "Satsu Studio 150%"', 'layout_dpi_translate "" 1.74 "Satsu Studio 200%"']
     return "\n".join(lines)+"\n"
 
 
@@ -503,10 +504,30 @@ def main():
     parser=argparse.ArgumentParser();parser.add_argument("--check",action="store_true");args=parser.parse_args()
     data,entries=build();target=ROOT/"dist"/(NAME+".ReaperThemeZip")
     if args.check:
-        if not target.exists() or target.read_bytes()!=data:raise SystemExit("Theme archive is stale. Run python reaper/theme/build.py")
+        if not target.exists():raise SystemExit("Theme archive is missing. Run python reaper/theme/build.py")
+        with zipfile.ZipFile(target) as shipped:
+            if set(shipped.namelist())!=set(entries):raise SystemExit("Theme archive file list is stale.")
+            if shipped.testzip():raise SystemExit("Theme archive has a corrupt entry.")
+            manifest_path=FOLDER+"/manifest.json"
+            manifest=json.loads(shipped.read(manifest_path))
+            generated_manifest=json.loads(entries[manifest_path])
+            if set(manifest["assets"])!=set(generated_manifest["assets"]):raise SystemExit("Theme manifest asset list is stale.")
+            for path,expected in entries.items():
+                actual=shipped.read(path)
+                info=shipped.getinfo(path)
+                if info.date_time!=(2026,10,6,0,0,0) or info.create_system!=3:raise SystemExit("Theme ZIP metadata is stale: "+path)
+                if path.endswith('.png'):
+                    with Image.open(io.BytesIO(actual)) as a, Image.open(io.BytesIO(expected)) as b:
+                        if a.size!=b.size or a.convert('RGBA').tobytes()!=b.convert('RGBA').tobytes():raise SystemExit("Theme artwork is stale: "+path)
+                    entry=manifest["assets"][path]
+                    if entry["sha256"]!=hashlib.sha256(actual).hexdigest() or entry["size"]!=generated_manifest["assets"][path]["size"]:raise SystemExit("Theme asset checksum/size mismatch: "+path)
+                elif path==manifest_path:
+                    for key in ["name","version","license","reaper"]:
+                        if manifest[key]!=generated_manifest[key]:raise SystemExit("Theme manifest metadata is stale: "+key)
+                elif actual!=expected:raise SystemExit("Theme source is stale: "+path)
         if (ROOT/"rtconfig.txt").read_bytes()!=entries[FOLDER+"/rtconfig.txt"]:raise SystemExit("Generated WALTER is stale.")
         if (ROOT/(NAME+".ReaperTheme")).read_bytes()!=entries[NAME+".ReaperTheme"]:raise SystemExit("Generated theme colors are stale.")
-        print(f"Theme is reproducible: {len(entries)} files / SHA256 {hashlib.sha256(data).hexdigest()}")
+        print(f"Theme sources, pixels and checksums verified: {len(entries)} files / SHA256 {hashlib.sha256(target.read_bytes()).hexdigest()}")
     else:
         target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data)
         (ROOT/"rtconfig.txt").write_bytes(entries[FOLDER+"/rtconfig.txt"])
