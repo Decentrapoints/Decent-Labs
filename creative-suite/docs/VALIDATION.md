@@ -30,7 +30,7 @@ Screenshots are generated into ignored `test-results/`. No test accounts, privat
 ## Limits of verification
 
 - Live REAPER sessions were not altered. Lua uses a test implementation of the documented REAPER APIs; validate first in a disposable native project.
-- A native complete WALTER skin and VST3 are not part of this release. The native deliverable is a reversible palette action; Studio is the companion control interface.
+- The native DLS Satsu theme includes original PNG artwork and complete WALTER layouts. Release tests validate the ZIP/PNG integrity, checksums, reproducibility, font records, control states, readable contrast, and non-overlapping control geometry at supported sizes and 100/150/200% scale. These are structural/layout tests, not a screenshot of REAPER's native renderer. Native dialogs and third-party plugin windows are outside WALTER's scope. No VST3 or embedded Tabs dock is shipped.
 - Dockerfiles/Compose are supplied but no Docker engine was available for a local build. CI verifies the Node application and browser flow on Linux.
 - The user's private SatsuOS deployment was not contacted. The adapter is tested with a local OpenAI-compatible provider fixture.
 - Browser engine coverage is Chromium. Music format coverage includes original AlphaTex and generated Guitar Pro/MIDI/model exports; keep original files for unsupported proprietary features.

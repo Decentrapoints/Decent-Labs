@@ -26,10 +26,38 @@ const codec = readFileSync(
     new URL("../reaper/DLS_Satsu_Palette.lua", import.meta.url),
     "utf8",
   );
+const loadTheme = readFileSync(
+    new URL("../reaper/DLS_Load_Theme.lua", import.meta.url),
+    "utf8",
+  ),
+  restoreTheme = readFileSync(
+    new URL("../reaper/DLS_Restore_Theme.lua", import.meta.url),
+    "utf8",
+  );
 test("Lua bridge, palette, and codec compile on a Lua 5.3 runtime", () =>
   run(
-    `assert(load(${JSON.stringify(bridge)}));assert(load(${JSON.stringify(palette)}));assert(load(${JSON.stringify(codec)}))`,
+    `assert(load(${JSON.stringify(bridge)}));assert(load(${JSON.stringify(palette)}));assert(load(${JSON.stringify(codec)}));assert(load(${JSON.stringify(loadTheme)}));assert(load(${JSON.stringify(restoreTheme)}))`,
   ));
+test("theme loader preserves the previous selection, backs up updates, and restores only on success", () =>
+  run(`
+local source='/repo/reaper/theme/dist/DLS Satsu.ReaperThemeZip'
+local target='/resource/ColorThemes/DLS Satsu.ReaperThemeZip'
+local files,ext,current,messages,apply={[source]='new-package',[target]='old-package',['/themes/previous.ReaperThemeZip']='previous'},{},'/themes/previous.ReaperThemeZip',0,true
+io.open=function(path,mode)
+  if mode=='rb' then if not files[path]then return nil end;return{read=function()return files[path]end,close=function()end}end
+  return{write=function(_,data)files[path]=data;return true end,close=function()end}
+end
+reaper={get_action_context=function()return false,'/repo/reaper/DLS_Load_Theme.lua' end,GetResourcePath=function()return '/resource' end,
+GetLastColorThemeFile=function()return current end,GetExtState=function(_,key)return ext[key]or ''end,SetExtState=function(_,key,value)ext[key]=value end,
+DeleteExtState=function(_,key)ext[key]=nil end,RecursiveCreateDirectory=function()end,file_exists=function(path)return files[path]~=nil end,
+OpenColorThemeFile=function(path)if not apply then return false end;current=path;return true end,UpdateArrange=function()end,TrackList_AdjustWindows=function()end,MB=function()messages=messages+1 end}
+local loader=assert(load(${JSON.stringify(loadTheme)}));local restore=assert(load(${JSON.stringify(restoreTheme)}))
+loader();assert(files[target]=='new-package' and files[target..'.previous']=='old-package');assert(current==target);assert(ext.ThemeBeforeSatsu=='/themes/previous.ReaperThemeZip')
+loader();assert(ext.ThemeBeforeSatsu=='/themes/previous.ReaperThemeZip');assert(messages==0)
+apply=false;restore();assert(ext.ThemeBeforeSatsu=='/themes/previous.ReaperThemeZip');assert(messages==1)
+apply=true;restore();assert(current=='/themes/previous.ReaperThemeZip' and ext.ThemeBeforeSatsu==nil)
+files[source]=nil;loader();assert(current=='/themes/previous.ReaperThemeZip');assert(messages==2)
+`));
 test("Lua JSON roundtrip handles Unicode, escapes, strict parsing and bounded nesting", () =>
   run(`
 local json=assert(load(${JSON.stringify(codec)}))()

@@ -89,11 +89,21 @@ The bridge uses the master track GUID plus a bridge-run identifier as an opaque 
 
 The bridge first renames a command to `processing-*`, then executes it and writes a durable receipt. A crash between those steps is **unknown**, never automatically retried. Inspect the session and the processing file before clearing a stalled command. Keep receipt files while their actions remain in use. Read [the contract](docs/INTEGRATION.md) for recovery details.
 
-### Native REAPER colors
+### Native REAPER theme
+
+**DLS Satsu** is included as a complete `.ReaperThemeZip`, with original artwork and WALTER layouts for track panels, mixer, master track, envelopes, transport, and toolbar controls. The arrange view, MIDI editor, waveforms, regions, and meters share the suite's graphite/lavender colors. It includes Studio, Compact, Recording, and Inspector variants plus 100%, 150%, and 200% artwork/layouts.
+
+Open **Connections → Download REAPER theme** and drag the downloaded archive into REAPER. Alternatively, open `reaper/theme/dist/DLS Satsu.ReaperThemeZip` directly or copy it to your REAPER resource directory's `ColorThemes` folder. Choose **Options → Themes → DLS Satsu**. Choose panel variants under **Options → Layouts**. [Theme guide and installer](reaper/theme/README.md).
+
+For a reversible application action, load `reaper/DLS_Load_Theme.lua` through **Actions → Show action list → New action → Load ReaScript** and run it. It installs the packaged theme and remembers the previous theme. `DLS_Restore_Theme.lua` restores that selection. These two actions do not need SWS, ReaImGui, or the service.
+
+The theme does not embed the web companion or Tabs inside REAPER; those remain separate connected applications. Native dialogs, third-party plugin windows, and OS window chrome retain their own layouts. The REAPER bridge supplies session integration separately from the theme.
+
+### Legacy palette action
 
 Load `reaper/DLS_Satsu_Palette.lua` as another action and run it to apply the DLS graphite/lavender palette to the current theme. Run it again to restore the colors saved before applying. Restore before changing native themes.
 
-This is a native color preset plus a separate polished Studio control surface. It does not replace REAPER's complete WALTER layout or ship a VST3. The live REAPER installation was not modified during verification: Lua was compiled and executed against an API test harness. Confirm behavior in a disposable project before using session controls on important work.
+Use the packaged theme for the full DLS layout. The legacy palette action only changes colors in another theme. No VST3 is shipped. Confirm bridge session controls in a disposable project before using them on important work.
 
 ## Connect SatsuOS
 

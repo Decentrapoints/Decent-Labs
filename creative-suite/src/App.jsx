@@ -312,6 +312,23 @@ function Connections({ connections, user, reload, notify }) {
             REAPER and the service share a filesystem folder. Browser clients
             can use another machine.
           </p>
+          <h3>DLS Satsu theme</h3>
+          <p className="fine">
+            Matching track panels, mixer, transport, and envelope controls.
+            Includes compact and recording layouts and display scaling.
+          </p>
+          <a
+            className="button"
+            href="/api/reaper/theme"
+            download="DLS Satsu.ReaperThemeZip"
+          >
+            <Download size={16} />
+            <span>Download REAPER theme</span>
+          </a>
+          <p className="fine">
+            Drop the downloaded file into REAPER, then choose DLS Satsu under
+            Options → Themes. Use Options → Layouts for panel variants.
+          </p>
         </section>
         <section className="panel">
           <div className="panel-icon">

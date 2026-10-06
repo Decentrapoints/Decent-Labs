@@ -190,6 +190,12 @@ try {
     .getByRole("heading", { name: "Everything has a place." })
     .waitFor();
   await screenshot("connections");
+  const [themeDownload] = await Promise.all([
+    page.waitForEvent("download"),
+    page.getByRole("link", { name: "Download REAPER theme" }).click(),
+  ]);
+  assert.equal(themeDownload.suggestedFilename(), "DLS Satsu.ReaperThemeZip");
+  assert.equal(await themeDownload.failure(), null);
   await page.getByRole("button", { name: "Toggle theme" }).click();
   await screenshot("connections-light");
   await page.getByRole("button", { name: "Toggle theme" }).click();

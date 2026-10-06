@@ -8,6 +8,46 @@ import { DatabaseSync } from "node:sqlite";
 import { createServer } from "node:http";
 import { createApp } from "../server/app.mjs";
 import { DlsClient } from "../sdk/dls-client.mjs";
+test("authenticated owners and guests can download the exact self-contained native theme", async (t) => {
+  const d = mkdtempSync(join(tmpdir(), "dls-theme-"));
+  const app = await createApp({
+    dataDir: d,
+    bridgeDir: join(d, "bridge"),
+    serveUi: false,
+  });
+  app.store.addUser("theme-guest", "theme-test-password-123", "guest");
+  t.after(async () => {
+    await app.close();
+    rmSync(d, { recursive: true, force: true });
+  });
+  assert.equal(
+    (await app.inject({ method: "GET", url: "/api/reaper/theme" })).statusCode,
+    401,
+  );
+  const login = await app.inject({
+    method: "POST",
+    url: "/api/auth/login",
+    payload: { name: "theme-guest", password: "theme-test-password-123" },
+  });
+  const cookie = login.headers["set-cookie"].split(";")[0];
+  const result = await app.inject({
+    method: "GET",
+    url: "/api/reaper/theme",
+    headers: { cookie },
+  });
+  assert.equal(result.statusCode, 200);
+  assert.equal(result.headers["content-type"], "application/zip");
+  assert.match(
+    result.headers["content-disposition"],
+    /DLS Satsu\.ReaperThemeZip/,
+  );
+  assert.deepEqual(
+    result.rawPayload,
+    readFileSync(
+      new URL("../reaper/theme/dist/DLS Satsu.ReaperThemeZip", import.meta.url),
+    ),
+  );
+});
 test("shared DLS client discovers capabilities and carries score actions through to receipts", async (t) => {
   const d = mkdtempSync(join(tmpdir(), "dls-sdk-")),
     app = await createApp({

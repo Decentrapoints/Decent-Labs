@@ -2,7 +2,7 @@ import Fastify from "fastify";
 import multipart from "@fastify/multipart";
 import staticFiles from "@fastify/static";
 import { resolve, join } from "node:path";
-import { existsSync } from "node:fs";
+import { existsSync, createReadStream } from "node:fs";
 import { createHash } from "node:crypto";
 import { Store, hashToken } from "./store.mjs";
 import { Bridge, validateCommand } from "./bridge.mjs";
@@ -509,6 +509,21 @@ export async function createApp({
     return store.action(a.id, req.user);
   });
   const alphaRoot = resolve("node_modules/@coderline/alphatab/dist");
+  app.get("/api/reaper/theme", async (_req, reply) => {
+    const file = new URL(
+      "../reaper/theme/dist/DLS Satsu.ReaperThemeZip",
+      import.meta.url,
+    );
+    if (!existsSync(file))
+      fail("The REAPER theme package is missing from this installation.", 503);
+    return reply
+      .type("application/zip")
+      .header(
+        "Content-Disposition",
+        'attachment; filename="DLS Satsu.ReaperThemeZip"',
+      )
+      .send(createReadStream(file));
+  });
   await app.register(staticFiles, {
     root: alphaRoot,
     prefix: "/assets/alphatab/",
