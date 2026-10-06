@@ -494,7 +494,7 @@ def build():
     output=io.BytesIO()
     with zipfile.ZipFile(output,"w",compression=zipfile.ZIP_DEFLATED,compresslevel=9) as archive:
         for path,data in sorted(entries.items()):
-            info=zipfile.ZipInfo(path,(2026,10,6,0,0,0));info.compress_type=zipfile.ZIP_DEFLATED;info.external_attr=0o644<<16
+            info=zipfile.ZipInfo(path,(2026,10,6,0,0,0));info.create_system=3;info.compress_type=zipfile.ZIP_DEFLATED;info.external_attr=0o644<<16
             archive.writestr(info,data,compress_type=zipfile.ZIP_DEFLATED,compresslevel=9)
     return output.getvalue(),entries
 
