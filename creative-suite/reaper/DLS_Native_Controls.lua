@@ -77,7 +77,8 @@ return function(api,M,mode)
       -- continue to use REAPER's normal text entry and mousewheel behavior.
       if not g.editDismissed and api.JS_Window_GetFocus then
         local focus=api.JS_Window_GetFocus()
-        local valid,left,top,right,bottom=api.JS_Window_GetRect(focus)
+        local valid,left,top,right,bottom
+        if focus then valid,left,top,right,bottom=api.JS_Window_GetRect(focus) end
         local client,tx,ty=api.JS_Window_GetClientRect(transport)
         local s=scale()
         if focus and valid and client and s and api.JS_Window_GetClassName(focus)=='Edit'

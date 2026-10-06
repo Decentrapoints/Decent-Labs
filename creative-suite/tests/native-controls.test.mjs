@@ -37,7 +37,7 @@ JS_Window_GetClientRect=function()return true,100,200,2100,200+64*scale end,
 JS_WindowMessage_Peek=function()return stamp>0,true,stamp,0,0,600*scale,30*scale end,
 JS_Mouse_GetState=function()return cap end,GetMousePosition=function()return mx,my end,
 JS_Window_GetFocus=function()return focused end,JS_Window_GetClassName=function()return 'Edit'end,
-JS_Window_GetRect=function()return true,100+570*scale,200+18*scale,100+630*scale,200+46*scale end,
+JS_Window_GetRect=function(window)assert(window~=nil);return true,100+570*scale,200+18*scale,100+630*scale,200+46*scale end,
 JS_WindowMessage_Post=function(window,msg,key)assert(window=='edit' and key==27);posts=posts+1;return true end,
 Undo_BeginBlock2=function()begins=begins+1 end,Undo_EndBlock2=function()ends=ends+1 end,
 EnumProjects=function()return active end}
