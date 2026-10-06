@@ -1,0 +1,7 @@
+# Reproducible native theme sources and binary release archive.
+creative-suite/reaper/theme/*.py text eol=lf
+creative-suite/reaper/theme/*.txt text eol=lf
+creative-suite/reaper/theme/*.md text eol=lf
+creative-suite/reaper/theme/*.ps1 text eol=lf
+creative-suite/reaper/theme/*.ReaperTheme text eol=lf
+*.ReaperThemeZip -text

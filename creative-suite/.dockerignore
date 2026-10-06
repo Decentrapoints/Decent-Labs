@@ -1,0 +1,12 @@
+node_modules
+dist
+data
+backups
+bridge-runtime
+test-results
+.env
+.env.*
+!.env.example
+!reaper/theme/dist/
+!reaper/theme/dist/DLS Satsu.ReaperThemeZip
+*.log
