@@ -42,7 +42,8 @@ $actions = @(
     @{ File = 'DLS_Open_Satsu.lua'; Label = 'Satsu studio'; Icon = 'satsu'; Row = 2 }
 )
 $service = @{ File = 'DLS_Transport_Controls.lua'; Label = 'Native transport controls' }
-$files = @('DLS_Playback.lua', 'DLS_Live_Pitch.lua', 'DLS_Guitar_Tuner.lua', 'DLS_Loop_Phrase.lua', 'DLS_Open_Tabs.lua', 'DLS_Open_Satsu.lua', 'DLS_Native_Controls.lua', 'DLS_Transport_Controls.lua')
+$appearance = @{ File = 'DLS_Theme_Settings.lua'; Label = 'Appearance settings' }
+$files = @('DLS_Playback.lua', 'DLS_Live_Pitch.lua', 'DLS_Guitar_Tuner.lua', 'DLS_Loop_Phrase.lua', 'DLS_Open_Tabs.lua', 'DLS_Open_Satsu.lua', 'DLS_Native_Controls.lua', 'DLS_Transport_Controls.lua', 'DLS_Auto_Theme.lua', 'DLS_Theme_Settings.lua')
 foreach ($file in $files) {
     $source = Join-Path $scriptRoot $file
     $target = Join-Path $resourceRoot ('Scripts/' + $file)
@@ -76,7 +77,7 @@ if ($NativeControls) {
 if ($QuickAccess -or $NativeControls) {
     $kbPath = Join-Path $resourceRoot 'reaper-kb.ini'
     $kb = Read-Text $kbPath
-    foreach ($action in ($actions + @($service))) {
+    foreach ($action in ($actions + @($service, $appearance))) {
         if ($action.Command) { continue }
         $match = [regex]::Match($kb, '(?m)^SCR\s+\d+\s+0\s+(RS\w+)\s+.*\b' + [regex]::Escape($action.File) + '"?\s*$')
         if ($match.Success) { $action.Command = '_' + $match.Groups[1].Value; continue }

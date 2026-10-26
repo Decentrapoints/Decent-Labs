@@ -10,6 +10,8 @@ The responsive layouts pass geometry checks from 320px to 1080px height, includi
 
 ## Use the theme
 
+**Fixed default:** choose **Options → Themes → DLS Satsu** (dark) or **DLS Satsu Light** (gray). REAPER remembers the selection after a normal exit; it is an application preference, not a per-project setting. If day/night switching is enabled, use the appearance settings below to select a fixed mode or turn the switcher off.
+
 1. Download **DLS Satsu.ReaperThemeZip** from the `dist` folder, or use **Connections → Download REAPER theme** in the suite.
 2. Drag the archive onto REAPER. Select **Options → Themes → DLS Satsu** if it is not selected automatically.
 3. Choose **Options → Layouts → Track Panel / Mixer Panel** for the panel variants below. A particular track can also have its own panel layout from its context menu.
@@ -41,6 +43,26 @@ The installer copies both DLS themes and the standalone **Scripts/DLS_Playback.l
 You can instead load and run **DLS_Load_Theme.lua** from the parent `reaper` folder. It installs and applies the theme and remembers the prior theme selection. **DLS_Restore_Theme.lua** restores that selection. Keep the repository folder structure intact. Restore the legacy palette action before changing themes if you previously used it.
 
 **DLS_Load_Light_Theme.lua** applies the gray variant. Both loaders register and open Playback tools when the adjacent script is present.
+
+## Default appearance and automatic day/night switching
+
+Load **reaper/DLS_Theme_Settings.lua** through **Actions → Show action list → New action → Load ReaScript**, then run it. A full Windows workspace install also registers **DLS / Appearance settings**. Choose:
+
+- **auto:** Light from **07:00**, Dark from **19:00** by default. Change both times in the same dialog using 24-hour `HH:MM`.
+- **dark / light:** force that appearance when REAPER opens.
+- **off:** stop automatic switching and let the normal Themes menu selection remain in use.
+
+Choose **Start with REAPER: yes** to make the setting apply on future launches. Setup copies both themes and its two Lua actions into REAPER's resource directory. It backs up changed files and manages only its marked block in **Scripts/\_\_startup.lua**, preserving other startup code. Choosing **off** or **startup: no** removes only that block. No OS task, SWS, js_ReaScriptAPI or web service is required. Keep the repository's `reaper` folder together for first setup.
+
+The switcher uses the computer's local clock, including daylight-saving changes; it uses fixed clock times rather than sunrise/sunset. It checks every 30 seconds, waits until playback/recording stops before a theme reload, and leaves a manual theme choice alone until the next scheduled period or settings change. A fixed mode runs once. Missing archives stop the worker with an explanatory console message. The schedule and startup-preservation behavior have automated Lua tests; native startup/rendering on Linux has not been verified.
+
+## Linux files and installation
+
+The same two **theme/dist/DLS Satsu.ReaperThemeZip** and **theme/dist/DLS Satsu Light.ReaperThemeZip** archives are portable; do not unpack them. In Linux REAPER, use **Options → Show REAPER resource path** and copy them into its **ColorThemes** folder, normally `~/.config/REAPER/ColorThemes/`. Select the theme under **Options → Themes**.
+
+For automatic appearance, run **DLS_Theme_Settings.lua** from the complete repository `reaper` folder on that machine. The setup uses REAPER's resource path and Lua APIs, so it creates Linux paths rather than copying Windows paths. Playback, ReaTune/ReaPitch shortcuts and the Lua bridge also use portable APIs. The self-hosted Tabs service has a separate [Linux/container setup](../../README.md).
+
+The optional native transport BPM drag adapter and its DLL installer are **Windows-only**. On Linux use the portable Playback panel's draggable BPM number/slider; do not copy the Windows DLL or Windows configuration files. Font substitution, Linux SWELL menus/dialogs and display scaling still need a native Linux visual pass; the archives alone do not skin third-party plugin windows.
 
 ## Playback tools
 

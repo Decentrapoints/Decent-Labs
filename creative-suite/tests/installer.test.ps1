@@ -28,7 +28,7 @@ try {
     Assert ([IO.File]::ReadAllText($menu) -eq $firstMenu) 'Reinstall duplicated or changed toolbar buttons.'
     Assert ([IO.File]::ReadAllText($ext) -eq $firstExt) 'Reinstall changed extension settings.'
     Assert ([IO.File]::ReadAllText($ini) -eq $customIni) 'Reinstall overwrote a user-chosen dock height.'
-    Assert (([regex]::Matches([IO.File]::ReadAllText((Join-Path $fixture 'reaper-kb.ini')), '(?m)^SCR')).Count -eq 7) 'Actions duplicated or missing.'
+    Assert (([regex]::Matches([IO.File]::ReadAllText((Join-Path $fixture 'reaper-kb.ini')), '(?m)^SCR')).Count -eq 8) 'Actions duplicated or missing.'
     $rejected = $false
     try { & $setup -ResourcePath $fixture -QuickAccess -SuiteURL 'https://example/path' } catch { $rejected = $true }
     Assert $rejected 'Unsafe suite URL accepted.'
