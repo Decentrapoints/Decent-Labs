@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+data/
+backups/
+test-results/
+*.log
+*.db
+*.db-shm
+*.db-wal
+bridge-runtime/
+__pycache__/
+!reaper/theme/dist/
+!reaper/theme/dist/DLS Satsu.ReaperThemeZip
+!reaper/theme/dist/DLS Satsu Light.ReaperThemeZip

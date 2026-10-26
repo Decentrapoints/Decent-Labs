@@ -1,0 +1,18 @@
+services:
+  creative-suite:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "${DLS_BIND_ADDRESS:-127.0.0.1}:4310:4310"
+    environment:
+      DLS_COOKIE_SECURE: "${DLS_COOKIE_SECURE:-false}"
+      DLS_PUBLIC_ORIGIN: "${DLS_PUBLIC_ORIGIN:-}"
+      SATSU_BASE_URL: "${SATSU_BASE_URL:-}"
+      SATSU_MODEL: "${SATSU_MODEL:-}"
+      SATSU_API_KEY: "${SATSU_API_KEY:-}"
+    volumes:
+      - dls-data:/app/data
+      - ./bridge-runtime:/app/bridge-runtime
+      - ./backups:/app/backups
+volumes:
+  dls-data:

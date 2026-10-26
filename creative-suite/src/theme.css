@@ -1,0 +1,48 @@
+:root {
+  color-scheme: dark;
+  --bg: #111216;
+  --sidebar: #15161b;
+  --panel: #191a20;
+  --raised: #22232b;
+  --satsu: #17181e;
+  --text: #eeedf3;
+  --muted: #a19dad;
+  --line: #2b2c35;
+  --line-bright: #42404e;
+  --accent: #baa7ed;
+  --accent-ink: #241b35;
+  --accent-soft: #292333;
+  --accent-line: #473b5c;
+  --teal: #8cbdb4;
+  --copper: #cc9d84;
+  --green: #91b5a0;
+  --green-soft: #24312b;
+  --paper: #f5f1e9;
+  --ink: #3d3542;
+  --score-surround: #141419;
+  --error: #ed9b9b;
+  --error-line: #63373e;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f6f5f8;
+  --sidebar: #efedf2;
+  --panel: #fff;
+  --raised: #eae7ef;
+  --satsu: #f3f0f7;
+  --text: #302936;
+  --muted: #787080;
+  --line: #dfdbe5;
+  --line-bright: #c2baca;
+  --accent: #72519e;
+  --accent-ink: #fff;
+  --accent-soft: #eee7f5;
+  --accent-line: #d5c4e9;
+  --teal: #4d897e;
+  --copper: #ae785c;
+  --green: #517f64;
+  --green-soft: #e8f0e9;
+  --score-surround: #eae7ec;
+  --error: #a24250;
+  --error-line: #dbabb2;
+}
